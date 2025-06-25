@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ブキランダム抽選ツール</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>ブキランダム抽選ツール</h1>
+
+        <div class="controls-section">
+            <div class="control-group">
+                <label for="sub-select">サブ:</label>
+                <select id="sub-select">
+                    {% for option in sub_options %}
+                        <option value="{{ option }}">{{ option }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="special-select">スペシャル:</label>
+                <select id="special-select">
+                    {% for option in special_options %}
+                        <option value="{{ option }}">{{ option }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label for="weapon-type-select">ブキ種:</label>
+                <select id="weapon-type-select">
+                    {% for option in weapon_type_options %}
+                        <option value="{{ option }}">{{ option }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button id="draw-button">抽選</button>
+        </div>
+
+        <div class="result-section">
+            <img id="weapon-image" src="" alt="ブキ画像" class="hidden"> <p id="result-text">Next: (抽選してください)</p>
+            <p id="remaining-count">条件に合うブキ数: (計算中...)</p>
+        </div>
+
+        <div class="settings-section">
+            <h2>設定</h2>
+            <div class="setting-item">
+                <input type="checkbox" id="avoid-repeat-checkbox">
+                <label for="avoid-repeat-checkbox">重複なし</label>
+            </div>
+
+            <h3>除外するブキ種:</h3>
+            <div id="exclude-weapon-types">
+                {% for type in all_weapon_types %}
+                    <input type="checkbox" id="exclude-{{ type }}" value="{{ type }}">
+                    <label for="exclude-{{ type }}">{{ type }}</label><br>
+                {% endfor %}
+            </div>
+            <button id="clear-all-exclude">すべて解除</button>
+
+            <h3>特定のブキを除外:</h3>
+            <div class="specific-exclude-controls">
+                <input type="text" id="exclude-weapon-input" list="weapon-names-datalist" placeholder="ブキ名を入力">
+                <datalist id="weapon-names-datalist">
+                    </datalist>
+                <button id="add-exclude-weapon-button">追加</button>
+            </div>
+            <ul id="excluded-specific-weapons-list">
+                </ul>
+            <button id="remove-selected-exclude-button">選択したブキを削除</button>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
