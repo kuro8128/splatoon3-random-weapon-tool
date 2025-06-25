@@ -59,6 +59,15 @@ def get_random_weapon():
 
     # 特定のブキによる除外
     filtered_weapons = [w for w in filtered_weapons if w["ブキ名"] not in excluded_specific_weapons]
+    
+    # フィルタリングの結果ブキが一つも残っていない場合
+    if not filtered_weapons:
+            return jsonify({
+                "weapon_name": "そんなブキないよ！",
+                "image_url": "/static/weapon_images/そんなブキないよ！.png",
+                "remaining_count": 0,
+                "reset_needed": False
+            })
 
     # 重複なし設定の場合
     if avoid_repeat:
@@ -70,20 +79,13 @@ def get_random_weapon():
             # 残りがない場合はリセットを促すメッセージとフラグを返す
             return jsonify({
                 "weapon_name": "全部引いたからリセットして再抽選！",
-                "image_url": "/static/weapon_images/そんなブキないよ！.png",
+                "image_url": "/static/weapon_images/default.png",
                 "remaining_count": 0,
                 "reset_needed": True
             })
         selected_weapon = random.choice(remaining_weapons)
     else:
-        # 重複ありの場合、またはフィルタリングの結果ブキが一つも残っていない場合
-        if not filtered_weapons:
-            return jsonify({
-                "weapon_name": "そんなブキないよ！",
-                "image_url": "/static/weapon_images/そんなブキないよ！.png",
-                "remaining_count": 0,
-                "reset_needed": False
-            })
+        # 重複ありの場合
         selected_weapon = random.choice(filtered_weapons)
     
     # 残りブキ数を計算
@@ -91,7 +93,7 @@ def get_random_weapon():
     if avoid_repeat:
         # 現在抽選されたブキをused_weapons_clientに追加した状態で残り数を計算
         current_used_for_count = used_weapons_client + [selected_weapon["ブキ名"]]
-        remaining_count = len([w for w in filtered_weapons if w["ブキ名"] not in current_used_for_count])
+        remaining_count = len([w for w in filtered_weapons if w["ブキ名"] not in current_used_for_count]) + 1
     else:
         remaining_count = len(filtered_weapons)
 

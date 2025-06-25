@@ -372,7 +372,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 .catch(error => {
                     console.error('Error fetching random weapon:', error);
                     resultText.textContent = "抽選エラー";
-                    weaponImage.src = '/static/weapon_images/そんなブキないよ！.png'; // エラー画像
+                    weaponImage.src = '/static/weapon_images/default.png'; // エラー画像
                     remainingCountLabel.textContent = `条件に合うブキ数: エラー`;
                     enableControls(); // エラー時もコントロールを有効化
                 });
