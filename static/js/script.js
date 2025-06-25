@@ -222,7 +222,6 @@ document.addEventListener('DOMContentLoaded', () => {
         "デンタルワイパースミ",
     ];
     updateWeaponNamesDatalist();
-    // **** 暫定策ここまで ****
 
     function updateWeaponNamesDatalist() {
         weaponNamesDatalist.innerHTML = ''; // クリア
@@ -320,7 +319,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const animateDraw = () => {
             if (frame < totalFrames) {
                 // 仮の表示 (ランダムなブキ名を一時的に表示)
-                const tempWeaponNames = ["スプラシューター", "ガロンデコ", "エクスプロッシャー", "プライムシューター"]; // 例
+                const tempWeaponNames = ["default"]; // 例
                 resultText.textContent = `抽選中...`; // 仮のブキ名表示はしない (画像で代替)
                 
                 // 仮の画像表示
