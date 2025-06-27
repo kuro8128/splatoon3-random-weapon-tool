@@ -1,5 +1,6 @@
 // splatoon3_web_app/static/js/script.js
 document.addEventListener('DOMContentLoaded', () => {
+    // UI要素の取得
     const subSelect = document.getElementById('sub-select');
     const specialSelect = document.getElementById('special-select');
     const weaponTypeSelect = document.getElementById('weapon-type-select');
@@ -16,215 +17,69 @@ document.addEventListener('DOMContentLoaded', () => {
     const excludedSpecificWeaponsList = document.getElementById('excluded-specific-weapons-list');
     const removeSelectedExcludeButton = document.getElementById('remove-selected-exclude-button');
 
-    let usedWeapons = new Set(); // クライアント側で使用済みブキを管理
-    let excludedSpecificWeapons = []; // 除外する特定のブキ名を管理
-    let allWeaponNames = []; // 全ブキ名を保持 (datalist用)
+    // メッセージモーダルの要素
+    const messageModal = document.getElementById('message-modal');
+    const messageText = document.getElementById('message-text');
+    const closeModalButton = document.getElementById('close-modal-button');
 
+    // アプリケーションの状態管理変数
+    let usedWeapons = new Set(); // クライアント側で使用済みブキを管理 (重複なし用)
+    let excludedSpecificWeapons = []; // 除外する特定のブキ名を管理
+    
+    // 全ブキ名を保持 (datalist用)。all_weapons.py から手動でコピー。
+    // 本来はAPIで取得するのが望ましいが、今回は簡略化のためJS内に直接記述。
+    const allWeaponNames = [
+        "ボールドマーカー", "ボールドマーカーネオ", "わかばシューター", "もみじシューター",
+        "シャープマーカー", "シャープマーカーネオ", "シャープマーカーGECK", "プロモデラーMG",
+        "プロモデラーRG", "プロモデラー彩", "スプラシューター", "スプラシューターコラボ",
+        "スプラシューター煌", ".52ガロン", ".52ガロンデコ", "N-ZAP85", "N-ZAP89",
+        "プライムシューター", "プライムシューターコラボ", "プライムシューターFRZN", ".96ガロン",
+        ".96ガロンデコ", ".96ガロン爪", "ジェットスイーパー", "ジェットスイーパーカスタム",
+        "ジェットスイーパーCOBR", "スペースシューター", "スペースシューターコラボ", "L3リールガン",
+        "L3リールガンD", "L3リールガン箔", "H3リールガン", "H3リールガンD", "H3リールガンSNAK",
+        "ボトルガイザー", "ボトルガイザーフォイル", "カーボンローラー", "カーボンローラーデコ",
+        "カーボンローラーANGL", "スプラローラー", "スプラローラーコラボ", "ダイナモローラー",
+        "ダイナモローラーテスラ", "ダイナモローラー冥", "ヴァリアブルローラー", "ヴァリアブルローラーフォイル",
+        "ワイドローラー", "ワイドローラーコラボ", "ワイドローラー惑", "スクイックリンα",
+        "スクイックリンβ", "スプラチャージャー", "スプラチャージャーコラボ", "スプラチャージャーFRST",
+        "スプラスコープ", "スプラスコープコラボ", "スプラスコープFRST", "リッター4K",
+        "リッター4Kカスタム", "4Kスコープ", "4Kスコープカスタム", "14式竹筒銃・甲",
+        "14式竹筒銃・乙", "ソイチューバー", "ソイチューバーカスタム", "R-PEN/5H",
+        "R-PEN/5B", "バケットスロッシャー", "バケットスロッシャーデコ", "ヒッセン",
+        "ヒッセンヒュー", "ヒッセンASH", "スクリュースロッシャー", "スクリュースロッシャーネオ",
+        "オーバーフロッシャー", "オーバーフロッシャーデコ", "エクスプロッシャー", "エクスプロッシャーカスタム",
+        "モップリン", "モップリンD", "モップリン角", "スプラスピナー",
+        "スプラスピナーコラボ", "スプラスピナーPYTN", "バレルスピナー", "バレルスピナーデコ",
+        "ハイドラント", "ハイドラントカスタム", "ハイドラント圧", "クーゲルシュライバー",
+        "クーゲルシュライバーヒュー", "ノーチラス47", "ノーチラス79", "イグザミナー",
+        "イグザミナーヒュー", "スパッタリー", "スパッタリーヒュー", "スパッタリーOWL",
+        "スプラマニューバー", "スプラマニューバーコラボ", "スプラマニューバー耀", "ケルビン525",
+        "ケルビン525デコ", "デュアルスイーパー", "デュアルスイーパーカスタム", "デュアルスイーパー蹄",
+        "クアッドホッパーブラック", "クアッドホッパーホワイト", "ガエンFF", "ガエンFFカスタム",
+        "パラシェルター", "パラシェルターソレーラ", "キャンピングシェルター", "キャンピングシェルターソレーラ",
+        "キャンピングシェルターCREM", "スパイガジェット", "スパイガジェットソレーラ", "スパイガジェット繚",
+        "24式張替傘・甲", "24式張替傘・乙", "ノヴァブラスター", "ノヴァブラスターネオ",
+        "ホットブラスター", "ホットブラスターカスタム", "ホットブラスター艶", "ロングブラスター",
+        "ロングブラスターカスタム", "クラッシュブラスター", "クラッシュブラスターネオ", "ラピッドブラスター",
+        "ラピッドブラスターデコ", "Rブラスターエリート", "Rブラスターエリートデコ", "RブラスターエリートWNTR",
+        "S-BLAST92", "S-BLAST91", "パブロ", "パブロヒュー",
+        "ホクサイ", "ホクサイヒュー", "ホクサイ彗", "フィンセント",
+        "フィンセントヒュー", "フィンセントBRNZ", "トライストリンガー", "トライストリンガーコラボ",
+        "トライストリンガー燈", "LACT-450", "LACT-450デコ", "LACT-450MILK",
+        "フルイドV", "フルイドVカスタム", "ジムワイパー", "ジムワイパーヒュー",
+        "ジムワイパー封", "ドライブワイパー", "ドライブワイパーデコ", "ドライブワイパーRUST",
+        "デンタルワイパーミント", "デンタルワイパースミ"
+    ];
+    
     const allExclusionCheckboxes = excludeWeaponTypesDiv.querySelectorAll('input[type="checkbox"]');
 
-    // 初期状態の画像設定
-    weaponImage.src = '/static/weapon_images/default.png';
-    weaponImage.classList.remove('hidden'); // 画像を表示状態にする
+    // 初期表示設定
+    weaponImage.src = '/static/weapon_images/default.png'; // 初期画像はdefault.png
+    weaponImage.classList.remove('hidden'); // 画像を表示状態に
 
-    // サーバーから全ブキ名を取得してdatalistに設定
-    // ※今回は all_weapons.py を直接読み込む方法がないため、初回アクセス時に取得する形にする
-    // 本来は、別のAPIエンドポイントで全ブキ名リストを返すのが望ましい。
-    // 今回は all_weapons.py が直接フロントエンドからアクセスできないので、仮に直接ブキ名をここで定義するか、
-    // バックエンドから `get_all_weapon_names` のようなAPIを用意する必要があります。
-    // **暫定策:** app.py の index ルートで weapon_names を渡すか、
-    // JavaScriptで静的に定義する
-    // 例: allWeaponNames = ["スプラシューター", "ジェットスイーパー", ...];
-
-    // **** 暫定策: バックエンドから全ブキ名を取得するAPIを呼び出す (推奨) ****
-    // app.py に新しいAPIエンドポイントを追加する必要があります。
-    // 例: @app.route('/api/all_weapon_names') return jsonify(all_weapons.weapon_names)
-    // fetch('/api/all_weapon_names')
-    //     .then(response => response.json())
-    //     .then(data => {
-    //         allWeaponNames = data;
-    //         updateWeaponNamesDatalist();
-    //     })
-    //     .catch(error => console.error('Error fetching weapon names:', error));
-
-    // **今回は、all_weapons.py をコピーしてフロントエンドのscript.jsで静的にブキ名を定義します。
-    // これは簡易的な方法であり、ブキデータ更新時はここも更新が必要です。
-    // all_weapons.py にある weapon_names をここに手動でコピーしてください。
-    allWeaponNames = [
-        "ボールドマーカー",
-        "ボールドマーカーネオ",
-        "わかばシューター",
-        "もみじシューター",
-        "シャープマーカー",
-        "シャープマーカーネオ",
-        "シャープマーカーGECK",
-        "プロモデラーMG",
-        "プロモデラーRG",
-        "プロモデラー彩",
-        "スプラシューター",
-        "スプラシューターコラボ",
-        "スプラシューター煌",
-        ".52ガロン",
-        ".52ガロンデコ",
-        "N-ZAP85",
-        "N-ZAP89",
-        "プライムシューター",
-        "プライムシューターコラボ",
-        "プライムシューターFRZN",
-        ".96ガロン",
-        ".96ガロンデコ",
-        ".96ガロン爪",
-        "ジェットスイーパー",
-        "ジェットスイーパーカスタム",
-        "ジェットスイーパーCOBR",
-        "スペースシューター",
-        "スペースシューターコラボ",
-        "L3リールガン",
-        "L3リールガンD",
-        "L3リールガン箔",
-        "H3リールガン",
-        "H3リールガンD",
-        "H3リールガンSNAK",
-        "ボトルガイザー",
-        "ボトルガイザーフォイル",
-
-        "カーボンローラー",
-        "カーボンローラーデコ",
-        "カーボンローラーANGL",
-        "スプラローラー",
-        "スプラローラーコラボ",
-        "ダイナモローラー",
-        "ダイナモローラーテスラ",
-        "ダイナモローラー冥",
-        "ヴァリアブルローラー",
-        "ヴァリアブルローラーフォイル",
-        "ワイドローラー",
-        "ワイドローラーコラボ",
-        "ワイドローラー惑",
-        
-        "スクイックリンα",
-        "スクイックリンβ",
-        "スプラチャージャー",
-        "スプラチャージャーコラボ",
-        "スプラチャージャーFRST",
-        "スプラスコープ",
-        "スプラスコープコラボ",
-        "スプラスコープFRST",
-        "リッター4K",
-        "リッター4Kカスタム",
-        "4Kスコープ",
-        "4Kスコープカスタム",
-        "14式竹筒銃・甲",
-        "14式竹筒銃・乙",
-        "ソイチューバー",
-        "ソイチューバーカスタム",
-        "R-PEN/5H",
-        "R-PEN/5B",
-
-        "バケットスロッシャー",
-        "バケットスロッシャーデコ",
-        "ヒッセン",
-        "ヒッセンヒュー",
-        "ヒッセンASH",
-        "スクリュースロッシャー",
-        "スクリュースロッシャーネオ",
-        "オーバーフロッシャー",
-        "オーバーフロッシャーデコ",
-        "エクスプロッシャー",
-        "エクスプロッシャーカスタム",
-        "モップリン",
-        "モップリンD",
-        "モップリン角",
-
-        "スプラスピナー",
-        "スプラスピナーコラボ",
-        "スプラスピナーPYTN",
-        "バレルスピナー",
-        "バレルスピナーデコ",
-        "ハイドラント",
-        "ハイドラントカスタム",
-        "ハイドラント圧",
-        "クーゲルシュライバー",
-        "クーゲルシュライバーヒュー",
-        "ノーチラス47",
-        "ノーチラス79",
-        "イグザミナー",
-        "イグザミナーヒュー",
-
-        "スパッタリー",
-        "スパッタリーヒュー",
-        "スパッタリーOWL",
-        "スプラマニューバー",
-        "スプラマニューバーコラボ",
-        "スプラマニューバー耀",
-        "ケルビン525",
-        "ケルビン525デコ",
-        "デュアルスイーパー",
-        "デュアルスイーパーカスタム",
-        "デュアルスイーパー蹄",
-        "クアッドホッパーブラック",
-        "クアッドホッパーホワイト",
-        "ガエンFF",
-        "ガエンFFカスタム",
-
-        "パラシェルター",
-        "パラシェルターソレーラ",
-        "キャンピングシェルター",
-        "キャンピングシェルターソレーラ",
-        "キャンピングシェルターCREM",
-        "スパイガジェット",
-        "スパイガジェットソレーラ",
-        "スパイガジェット繚",
-        "24式張替傘・甲",
-        "24式張替傘・乙",
-
-        "ノヴァブラスター",
-        "ノヴァブラスターネオ",
-        "ホットブラスター",
-        "ホットブラスターカスタム",
-        "ホットブラスター艶",
-        "ロングブラスター",
-        "ロングブラスターカスタム",
-        "クラッシュブラスター",
-        "クラッシュブラスターネオ",
-        "ラピッドブラスター",
-        "ラピッドブラスターデコ",
-        "Rブラスターエリート",
-        "Rブラスターエリートデコ",
-        "RブラスターエリートWNTR",
-        "S-BLAST92",
-        "S-BLAST91",
-
-        "パブロ",
-        "パブロヒュー",
-        "ホクサイ",
-        "ホクサイヒュー",
-        "ホクサイ彗",
-        "フィンセント",
-        "フィンセントヒュー",
-        "フィンセントBRNZ",
-
-        "トライストリンガー",
-        "トライストリンガーコラボ",
-        "トライストリンガー燈",
-        "LACT-450",
-        "LACT-450デコ",
-        "LACT-450MILK",
-        "フルイドV",
-        "フルイドVカスタム",
-
-        "ジムワイパー",
-        "ジムワイパーヒュー",
-        "ジムワイパー封",
-        "ドライブワイパー",
-        "ドライブワイパーデコ",
-        "ドライブワイパーRUST",
-        "デンタルワイパーミント",
-        "デンタルワイパースミ",
-    ];
-    updateWeaponNamesDatalist();
-
+    // Datalistの初期化
     function updateWeaponNamesDatalist() {
-        weaponNamesDatalist.innerHTML = ''; // クリア
+        weaponNamesDatalist.innerHTML = '';
         allWeaponNames.forEach(name => {
             const option = document.createElement('option');
             option.value = name;
@@ -232,7 +87,53 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 条件変更時の処理
+    // メッセージモーダルの表示
+    function showMessage(message) {
+        messageText.textContent = message;
+        messageModal.style.display = 'block';
+    }
+
+    // メッセージモーダルの非表示
+    closeModalButton.addEventListener('click', () => {
+        messageModal.style.display = 'none';
+    });
+    // モーダル外クリックで閉じる
+    window.addEventListener('click', (event) => {
+        if (event.target === messageModal) {
+            messageModal.style.display = 'none';
+        }
+    });
+
+    // コントロール無効化/有効化関数
+    function disableControls() {
+        subSelect.disabled = true;
+        specialSelect.disabled = true;
+        weaponTypeSelect.disabled = true;
+        drawButton.disabled = true;
+        avoidRepeatCheckbox.disabled = true;
+        allExclusionCheckboxes.forEach(cb => cb.disabled = true);
+        clearAllExcludeButton.disabled = true;
+        excludeWeaponInput.disabled = true;
+        addExcludeWeaponButton.disabled = true;
+        removeSelectedExcludeButton.disabled = true;
+        excludedSpecificWeaponsList.style.pointerEvents = 'none'; // リスト選択を無効化
+    }
+
+    function enableControls() {
+        subSelect.disabled = false;
+        specialSelect.disabled = false;
+        weaponTypeSelect.disabled = false;
+        drawButton.disabled = false;
+        avoidRepeatCheckbox.disabled = false;
+        allExclusionCheckboxes.forEach(cb => cb.disabled = false);
+        clearAllExcludeButton.disabled = false;
+        excludeWeaponInput.disabled = false;
+        addExcludeWeaponButton.disabled = false;
+        removeSelectedExcludeButton.disabled = false;
+        excludedSpecificWeaponsList.style.pointerEvents = 'auto'; // リスト選択を有効化
+    }
+
+    // 条件変更時の処理: 使用済みブキをリセットし、残りブキ数を更新
     const onConditionChange = async () => {
         usedWeapons.clear(); // 条件が変わったら使用済みブキをリセット
         await updateRemainingCount();
@@ -275,17 +176,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     special: selectedSpecial,
                     weapon_type: selectedWeaponType,
                     excluded_types: excludedTypes,
-                    excluded_specific_weapons: excludedSpecificWeapons, // 特定の除外ブキも送信
+                    excluded_specific_weapons: excludedSpecificWeapons,
                     avoid_repeat: avoidRepeat,
                     used_weapons: avoidRepeat ? Array.from(usedWeapons) : [] // 重複なしの場合のみ送信
                 }),
             });
             const data = await response.json();
             
+            // 残りブキ数の表示を更新
             if (data.weapon_name === "そんなブキないよ！" || data.reset_needed) {
                 remainingCountLabel.textContent = `条件に合うブキ数: 0`;
             } else if (avoidRepeat) {
-                // Heroku上のバックエンドのremaining_countは既に次の抽選を見越しているのでそのまま表示
                 remainingCountLabel.textContent = `残りブキ数: ${data.remaining_count}`;
             } else {
                 remainingCountLabel.textContent = `条件に合うブキ数: ${data.remaining_count}`;
@@ -307,32 +208,18 @@ document.addEventListener('DOMContentLoaded', () => {
                                 .map(cb => cb.value);
         const avoidRepeat = avoidRepeatCheckbox.checked;
 
-        // アニメーションの開始
-        let frame = 0;
-        const totalFrames = 16;
-        const frameDuration = 40; // 最初のフレームの速さ
-
         // コントロールを無効化
         disableControls();
-        weaponImage.classList.remove('hidden'); // 画像を表示状態に
+        resultText.textContent = "抽選中...";
+        weaponImage.src = '/static/weapon_images/default.png'; // 抽選中はdefault.pngを表示
 
-        const animateDraw = () => {
-            if (frame < totalFrames) {
-                // 仮の表示 (ランダムなブキ名を一時的に表示)
-                const tempWeaponNames = ["default"]; // 例
-                resultText.textContent = `抽選中...`; // 仮のブキ名表示はしない (画像で代替)
-                
-                // 仮の画像表示
-                const tempWeapon = tempWeaponNames[frame % tempWeaponNames.length];
-                const tempImageFilename = tempWeapon.replace("/", "_") + ".png";
-                weaponImage.src = `/static/weapon_images/${tempImageFilename}`;
+        // 抽選の待機時間 (例: 1秒)
+        const drawingDuration = 1000; 
 
-                const currentDuration = frameDuration + Math.floor(frame * 8); // 減速効果
-                frame++;
-                setTimeout(animateDraw, currentDuration);
-            } else {
+        setTimeout(async () => {
+            try {
                 // 最終結果の取得
-                fetch('/api/random_weapon', {
+                const response = await fetch('/api/random_weapon', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -346,72 +233,40 @@ document.addEventListener('DOMContentLoaded', () => {
                         avoid_repeat: avoidRepeat,
                         used_weapons: Array.from(usedWeapons)
                     }),
-                })
-                .then(response => response.json())
-                .then(data => {
-                    resultText.textContent = `Next: ${data.weapon_name}`;
-                    weaponImage.src = data.image_url;
-                    
-                    if (avoidRepeat && data.weapon_name !== "そんなブキないよ！" && data.weapon_name !== "全部引いたからリセットして再抽選！") {
-                        usedWeapons.add(data.weapon_name);
-                    }
-
-                    if (data.reset_needed) {
-                        usedWeapons.clear(); // サーバーからリセット指示があった場合
-                        resultText.textContent = "おや、全部引いたみたいだね！リセットして再抽選だ！";
-                        // 1.5秒後に自動的に再抽選を試みる
-                        setTimeout(() => {
-                            drawButton.click(); // 自動的に再抽選をトリガー
-                        }, 4000);
-                    } else {
-                         enableControls(); // 通常はここで有効化
-                    }
-                    
-                    updateRemainingCount(); // 抽選後に残り数を更新
-                })
-                .catch(error => {
-                    console.error('Error fetching random weapon:', error);
-                    resultText.textContent = "抽選エラー";
-                    weaponImage.src = '/static/weapon_images/default.png'; // エラー画像
-                    remainingCountLabel.textContent = `条件に合うブキ数: エラー`;
-                    enableControls(); // エラー時もコントロールを有効化
                 });
-            }
-        };
+                const data = await response.json();
+                
+                resultText.textContent = `Next: ${data.weapon_name}`;
+                weaponImage.src = data.image_url;
+                
+                if (avoidRepeat && data.weapon_name !== "そんなブキないよ！" && data.weapon_name !== "全部引いたからリセットして再抽選！") {
+                    usedWeapons.add(data.weapon_name);
+                }
 
-        animateDraw(); // アニメーションを開始
+                if (data.reset_needed) {
+                    usedWeapons.clear(); // サーバーからリセット指示があった場合
+                    showMessage("おや、全部引いたみたいだね！リセットして再抽選だ！");
+                    // メッセージ表示後、自動的に再抽選をトリガー
+                    setTimeout(() => {
+                        drawButton.click(); // 自動的に再抽選
+                    }, 1500); // 1.5秒後に再抽選を試みる
+                } else {
+                    enableControls(); // 通常はここで有効化
+                }
+                
+                updateRemainingCount(); // 抽選後に残り数を更新
+
+            } catch (error) {
+                console.error('Error fetching random weapon:', error);
+                resultText.textContent = "抽選エラー";
+                weaponImage.src = '/static/weapon_images/default.png'; // エラー時もdefault.png
+                remainingCountLabel.textContent = `条件に合うブキ数: エラー`;
+                enableControls(); // エラー時もコントロールを有効化
+            }
+        }, drawingDuration); // 指定された抽選待機時間後に結果を表示
     });
 
-    // コントロール無効化/有効化関数
-    function disableControls() {
-        subSelect.disabled = true;
-        specialSelect.disabled = true;
-        weaponTypeSelect.disabled = true;
-        drawButton.disabled = true;
-        avoidRepeatCheckbox.disabled = true;
-        allExclusionCheckboxes.forEach(cb => cb.disabled = true);
-        clearAllExcludeButton.disabled = true;
-        excludeWeaponInput.disabled = true;
-        addExcludeWeaponButton.disabled = true;
-        removeSelectedExcludeButton.disabled = true;
-        excludedSpecificWeaponsList.style.pointerEvents = 'none'; // リスト選択を無効化
-    }
-
-    function enableControls() {
-        subSelect.disabled = false;
-        specialSelect.disabled = false;
-        weaponTypeSelect.disabled = false;
-        drawButton.disabled = false;
-        avoidRepeatCheckbox.disabled = false;
-        allExclusionCheckboxes.forEach(cb => cb.disabled = false);
-        clearAllExcludeButton.disabled = false;
-        excludeWeaponInput.disabled = false;
-        addExcludeWeaponButton.disabled = false;
-        removeSelectedExcludeButton.disabled = false;
-        excludedSpecificWeaponsList.style.pointerEvents = 'auto'; // リスト選択を有効化
-    }
-
-    // 条件変更イベントリスナー
+    // イベントリスナーの登録
     subSelect.addEventListener('change', onConditionChange);
     specialSelect.addEventListener('change', onConditionChange);
     weaponTypeSelect.addEventListener('change', onConditionChange);
@@ -436,12 +291,16 @@ document.addEventListener('DOMContentLoaded', () => {
             excludeWeaponInput.value = ''; // 入力欄をクリア
             updateExcludedSpecificWeaponsList();
         } else if (!allWeaponNames.includes(weaponToAdd) && weaponToAdd !== "") {
-            alert("存在しないブキ名です。");
+            showMessage("存在しないブキ名です。"); // alertの代わりにモーダルを使用
         }
     });
 
     removeSelectedExcludeButton.addEventListener('click', () => {
         const selectedItems = Array.from(excludedSpecificWeaponsList.children).filter(li => li.classList.contains('selected'));
+        if (selectedItems.length === 0) {
+            showMessage("削除するブキを選択してください。");
+            return;
+        }
         selectedItems.forEach(item => {
             const weaponName = item.dataset.weaponName;
             excludedSpecificWeapons = excludedSpecificWeapons.filter(w => w !== weaponName);
@@ -449,6 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateExcludedSpecificWeaponsList();
     });
 
-    // 初期表示時に残りブキ数を更新
+    // 初期表示時にdatalistと残りブキ数を更新
+    updateWeaponNamesDatalist();
     onConditionChange();
 });
