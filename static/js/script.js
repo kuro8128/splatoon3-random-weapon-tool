@@ -358,11 +358,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     if (data.reset_needed) {
                         usedWeapons.clear(); // サーバーからリセット指示があった場合
-                        resultText.textContent = "全部引いたからリセットして再抽選！";
+                        resultText.textContent = "おや、全部引いたみたいだね！リセットして再抽選だ！";
                         // 1.5秒後に自動的に再抽選を試みる
                         setTimeout(() => {
                             drawButton.click(); // 自動的に再抽選をトリガー
-                        }, 1500);
+                        }, 4000);
                     } else {
                          enableControls(); // 通常はここで有効化
                     }
