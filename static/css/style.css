@@ -17,41 +17,43 @@ body {
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     width: 100%;
-    max-width: 600px;
+    max-width: 600px; /* 全体の最大幅を少し広めに設定 */
     text-align: center;
 }
 
 h1 {
     color: #333;
     margin-bottom: 25px;
+    font-size: 2.2rem; /* タイトルを少し大きく */
 }
 
 .controls-section, .result-section, .settings-section {
     margin-bottom: 25px;
-    padding: 15px;
+    padding: 20px; /* パディングを少し増やす */
     border: 1px solid #eee;
     border-radius: 8px;
     background-color: #fdfdfd;
 }
 
 .control-group {
-    margin-bottom: 15px;
+    margin-bottom: 20px; /* グループ間の余白を増やす */
 }
 
 label {
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 8px; /* ラベルと入力の間の余白を増やす */
     font-weight: bold;
     color: #555;
+    font-size: 1.1rem; /* ラベルのフォントサイズを少し大きく */
 }
 
 select, input[type="text"], button {
-    width: calc(100% - 20px);
-    padding: 10px;
-    margin: 5px 0;
+    width: 100%; /* calc(100% - 20px) を 100% に変更 */
+    padding: 12px; /* パディングを増やす */
+    margin: 8px 0; /* マージンを増やす */
     border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 1rem;
+    border-radius: 6px; /* 角を少し丸く */
+    font-size: 1.0rem; /* フォントサイズを調整 */
     box-sizing: border-box;
 }
 
@@ -65,39 +67,41 @@ button {
     color: white;
     border: none;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.2s ease; /* ホバーエフェクトを追加 */
 }
 
 button:hover {
     background-color: #0056b3;
+    transform: translateY(-2px); /* 少し上に浮き上がる */
 }
 
 #draw-button {
-    margin-top: 20px;
-    font-size: 1.2rem;
-    padding: 12px;
+    margin-top: 30px; /* 上部の余白を増やす */
+    font-size: 1.3rem; /* 抽選ボタンをさらに大きく */
+    padding: 15px; /* パディングを増やす */
+    border-radius: 8px; /* ボタンの角を丸く */
 }
 
 #weapon-image {
-    max-width: 150px;
+    max-width: 180px; /* 画像サイズを少し大きく */
     height: auto;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+    margin-bottom: 20px; /* 下部の余白を増やす */
+    border: 2px solid #ddd; /* ボーダーを太く */
+    border-radius: 8px; /* 角を丸く */
 }
 #weapon-image.hidden {
     display: none;
 }
 
 #result-text {
-    font-size: 1.5rem;
+    font-size: 1.8rem; /* 結果テキストを大きく */
     font-weight: bold;
     color: #333;
-    margin-bottom: 10px;
+    margin-bottom: 15px; /* 下部の余白を増やす */
 }
 
 #remaining-count {
-    font-size: 1rem;
+    font-size: 1.1rem; /* 残りカウントのフォントサイズを大きく */
     color: #666;
 }
 
@@ -106,80 +110,94 @@ h2, h3 {
     color: #333;
     margin-top: 0;
     margin-bottom: 15px;
+    font-size: 1.3rem; /* セクション見出しを調整 */
+}
+h3 {
+    font-size: 1.2rem; /* サブセクション見出しを調整 */
 }
 
 .setting-item {
     display: flex;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 15px; /* 余白を増やす */
 }
 
 .setting-item input[type="checkbox"] {
     width: auto;
-    margin-right: 10px;
+    margin-right: 12px; /* 余白を増やす */
+    transform: scale(1.2); /* チェックボックスを少し大きく */
 }
 
 #exclude-weapon-types {
     text-align: left;
-    margin-top: 10px;
+    margin-top: 15px;
 }
 
 #exclude-weapon-types input[type="checkbox"] {
     width: auto;
-    margin-right: 8px;
-    margin-bottom: 5px;
+    margin-right: 10px;
+    margin-bottom: 8px;
+    transform: scale(1.1); /* チェックボックスを少し大きく */
 }
 
 #exclude-weapon-types label {
     display: inline-block;
-    margin-right: 15px;
-    margin-bottom: 5px;
+    margin-right: 20px; /* 余白を増やす */
+    margin-bottom: 8px;
     font-weight: normal;
+    font-size: 1.0rem; /* フォントサイズを調整 */
 }
 
 #clear-all-exclude {
     width: auto;
-    margin-top: 15px;
-    padding: 8px 15px;
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 1.0rem;
+    border-radius: 6px;
 }
 
 .specific-exclude-controls {
     display: flex;
+    flex-wrap: wrap; /* スマホで折り返すように */
     gap: 10px;
-    margin-top: 10px;
-    margin-bottom: 10px;
+    margin-top: 15px;
+    margin-bottom: 15px;
     align-items: center;
 }
 
 .specific-exclude-controls input[type="text"] {
     flex-grow: 1;
     width: auto;
+    min-width: 150px; /* 最小幅を設定して狭くなりすぎないように */
 }
 
 .specific-exclude-controls button {
     width: auto;
-    padding: 8px 15px;
-    font-size: 0.9rem;
+    padding: 10px 18px;
+    font-size: 1.0rem;
     margin: 0;
+    border-radius: 6px;
 }
 
 #excluded-specific-weapons-list {
     list-style: none;
     padding: 0;
-    margin: 10px 0;
+    margin: 15px 0; /* 余白を増やす */
     text-align: left;
-    max-height: 150px;
+    max-height: 180px; /* リストの高さ制限を増やす */
     overflow-y: auto;
-    border: 1px solid #eee;
-    border-radius: 5px;
+    border: 1px solid #ddd; /* ボーダーを調整 */
+    border-radius: 8px; /* 角を丸く */
     background-color: #fff;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); /* 影を追加 */
 }
 
 #excluded-specific-weapons-list li {
-    padding: 8px 10px;
+    padding: 10px 15px; /* パディングを増やす */
     border-bottom: 1px solid #eee;
     cursor: pointer;
     transition: background-color 0.2s ease;
+    font-size: 1.0rem; /* フォントサイズを調整 */
 }
 
 #excluded-specific-weapons-list li:last-child {
@@ -187,65 +205,76 @@ h2, h3 {
 }
 
 #excluded-specific-weapons-list li.selected {
-    background-color: #e0f2f7;
+    background-color: #dbeafe; /* 選択時の色を強調 (Tailwind blue-100に近い) */
+    font-weight: bold;
 }
 
 #excluded-specific-weapons-list li:hover {
-    background-color: #f5f5f5;
+    background-color: #f0f0f0;
 }
 
 #remove-selected-exclude-button {
     width: auto;
-    margin-top: 10px;
-    padding: 8px 15px;
-    font-size: 0.9rem;
+    margin-top: 15px;
+    padding: 10px 20px;
+    font-size: 1.0rem;
+    background-color: #dc3545; /* 赤系の色に */
+    border-radius: 6px;
+}
+#remove-selected-exclude-button:hover {
+    background-color: #c82333;
+    transform: translateY(-2px);
 }
 
 /* モーダルスタイル */
 .modal {
-    display: none; /* 初期状態では非表示 */
-    position: fixed; /* 画面に固定 */
-    z-index: 1000; /* 最前面に表示 */
+    display: none;
+    position: fixed;
+    z-index: 1000;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    overflow: auto; /* 必要に応じてスクロール可能に */
-    background-color: rgba(0,0,0,0.4); /* 半透明の背景 */
-    display: flex; /* 中央寄せのため */
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5); /* 背景の透明度を少し上げる */
+    display: flex;
     justify-content: center;
     align-items: center;
+    padding: 10px; /* 小さな画面で内容が切れないように */
+    box-sizing: border-box;
 }
 
 .modal-content {
     background-color: #fefefe;
-    margin: auto; /* 上下左右中央寄せ */
-    padding: 20px;
+    padding: 25px; /* パディングを増やす */
     border: 1px solid #888;
-    width: 80%; /* 幅を調整 */
-    max-width: 400px; /* 最大幅 */
-    border-radius: 10px;
+    width: 90%; /* 幅を増やす */
+    max-width: 450px; /* 最大幅を増やす */
+    border-radius: 12px; /* 角をさらに丸く */
     text-align: center;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3); /* 影を強調 */
 }
 
 .modal-content p {
-    margin-bottom: 20px;
-    font-size: 1.1rem;
+    margin-bottom: 25px; /* 余白を増やす */
+    font-size: 1.2rem; /* フォントサイズを大きく */
     color: #333;
+    line-height: 1.5; /* 行の高さを調整 */
+    white-space: pre-wrap; /* 改行コードを反映させる */
 }
 
 .modal-content button {
     background-color: #007bff;
     color: white;
-    padding: 10px 20px;
+    padding: 12px 25px; /* パディングを増やす */
     border: none;
-    border-radius: 5px;
+    border-radius: 6px; /* 角を丸く */
     cursor: pointer;
-    font-size: 1rem;
+    font-size: 1.1rem; /* フォントサイズを大きく */
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .modal-content button:hover {
     background-color: #0056b3;
+    transform: translateY(-1px);
 }
-
