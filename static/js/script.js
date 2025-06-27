@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // メッセージモーダルの表示
     function showMessage(message) {
         messageText.textContent = message;
-        messageModal.style.display = 'block';
+        messageModal.style.display = 'flex'; // flexにして中央寄せを維持
     }
 
     // メッセージモーダルの非表示
@@ -165,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const avoidRepeat = avoidRepeatCheckbox.checked;
 
         try {
-            // 抽選せずに残りブキ数だけを取得するリクエスト
+            // カウントのみのリクエストとしてAPIを呼び出す
             const response = await fetch('/api/random_weapon', {
                 method: 'POST',
                 headers: {
@@ -178,14 +178,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     excluded_types: excludedTypes,
                     excluded_specific_weapons: excludedSpecificWeapons,
                     avoid_repeat: avoidRepeat,
-                    used_weapons: avoidRepeat ? Array.from(usedWeapons) : [] // 重複なしの場合のみ送信
+                    used_weapons: avoidRepeat ? Array.from(usedWeapons) : [],
+                    is_count_only_request: true // カウントのみのリクエストであることを明示
                 }),
             });
             const data = await response.json();
             
             // 残りブキ数の表示を更新
-            if (data.weapon_name === "そんなブキないよ！" || data.reset_needed) {
-                remainingCountLabel.textContent = `条件に合うブキ数: 0`;
+            if (data.remaining_count === 0) {
+                if (data.reset_needed) { // 「全部引いたからリセット」の場合
+                    remainingCountLabel.textContent = `残りブキ数: 0 (リセットが必要)`;
+                } else { // 「そんなブキないよ」の場合
+                    remainingCountLabel.textContent = `条件に合うブキ数: 0`;
+                }
             } else if (avoidRepeat) {
                 remainingCountLabel.textContent = `残りブキ数: ${data.remaining_count}`;
             } else {
@@ -198,8 +203,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // 抽選ボタンクリック時の処理
-    drawButton.addEventListener('click', async () => {
+    // 新しい抽選サイクルを開始する関数
+    const startNewDrawCycle = async () => {
         const selectedSub = subSelect.value;
         const selectedSpecial = specialSelect.value;
         const selectedWeaponType = weaponTypeSelect.value;
@@ -218,7 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         setTimeout(async () => {
             try {
-                // 最終結果の取得
+                // 最終結果の取得 (is_count_only_request: false で実際の抽選)
                 const response = await fetch('/api/random_weapon', {
                     method: 'POST',
                     headers: {
@@ -231,7 +236,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         excluded_types: excludedTypes,
                         excluded_specific_weapons: excludedSpecificWeapons,
                         avoid_repeat: avoidRepeat,
-                        used_weapons: Array.from(usedWeapons)
+                        used_weapons: Array.from(usedWeapons),
+                        is_count_only_request: false // 実際の抽選リクエストであることを明示
                     }),
                 });
                 const data = await response.json();
@@ -248,13 +254,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     showMessage("おや、全部引いたみたいだね！リセットして再抽選だ！");
                     // メッセージ表示後、自動的に再抽選をトリガー
                     setTimeout(() => {
-                        drawButton.click(); // 自動的に再抽選
+                        startNewDrawCycle(); // 自動的に再抽選を開始
                     }, 1500); // 1.5秒後に再抽選を試みる
                 } else {
                     enableControls(); // 通常はここで有効化
                 }
                 
-                updateRemainingCount(); // 抽選後に残り数を更新
+                updateRemainingCount(); // 抽選後に残り数を更新 (is_count_only_request: true で呼ばれる)
 
             } catch (error) {
                 console.error('Error fetching random weapon:', error);
@@ -264,7 +270,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 enableControls(); // エラー時もコントロールを有効化
             }
         }, drawingDuration); // 指定された抽選待機時間後に結果を表示
-    });
+    };
+
+    // 抽選ボタンクリック時の処理
+    drawButton.addEventListener('click', startNewDrawCycle); // 直接新しい抽選サイクルを開始
 
     // イベントリスナーの登録
     subSelect.addEventListener('change', onConditionChange);
@@ -286,13 +295,22 @@ document.addEventListener('DOMContentLoaded', () => {
     // 特定のブキ除外機能のイベントリスナー
     addExcludeWeaponButton.addEventListener('click', () => {
         const weaponToAdd = excludeWeaponInput.value.trim();
-        if (weaponToAdd && !excludedSpecificWeapons.includes(weaponToAdd) && allWeaponNames.includes(weaponToAdd)) {
-            excludedSpecificWeapons.push(weaponToAdd);
-            excludeWeaponInput.value = ''; // 入力欄をクリア
-            updateExcludedSpecificWeaponsList();
-        } else if (!allWeaponNames.includes(weaponToAdd) && weaponToAdd !== "") {
-            showMessage("存在しないブキ名です。"); // alertの代わりにモーダルを使用
+        if (!weaponToAdd) {
+            showMessage("ブキ名を入力してください。");
+            return;
         }
+        if (!allWeaponNames.includes(weaponToAdd)) {
+            showMessage("存在しないブキ名です。");
+            return;
+        }
+        if (excludedSpecificWeapons.includes(weaponToAdd)) {
+            showMessage("そのブキは既に追加されています。");
+            return;
+        }
+        
+        excludedSpecificWeapons.push(weaponToAdd);
+        excludeWeaponInput.value = ''; // 入力欄をクリア
+        updateExcludedSpecificWeaponsList();
     });
 
     removeSelectedExcludeButton.addEventListener('click', () => {
@@ -301,6 +319,7 @@ document.addEventListener('DOMContentLoaded', () => {
             showMessage("削除するブキを選択してください。");
             return;
         }
+        // 選択されたアイテムを逆順に処理して、削除によるインデックスのずれを防ぐ
         selectedItems.forEach(item => {
             const weaponName = item.dataset.weaponName;
             excludedSpecificWeapons = excludedSpecificWeapons.filter(w => w !== weaponName);
