@@ -255,7 +255,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 resultText.textContent = `Next: ${data.weapon_name}`;
                 weaponImage.src = data.image_url;
                 
-                if (avoidRepeat && data.weapon_name !== "そんなブキないよ！" && data.weapon_name !== "全部引いたからリセットして再抽選！") {
+                if (avoidRepeat && data.weapon_name !== "そんなブキないよ！" && data.weapon_name !== "もうブキ残ってないよ！") {
                     usedWeapons.add(data.weapon_name);
                 }
 

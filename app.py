@@ -77,7 +77,7 @@ def get_random_weapon():
             # カウントのみのリクエストの場合は、ここでリセットの必要はない (0を返す)
             if is_count_only_request:
                 return jsonify({
-                    "weapon_name": "全部引いたからリセットして再抽選！", # このメッセージは表示しないが、返す
+                    "weapon_name": "もうブキ残ってないよ！", # このメッセージは表示しないが、返す
                     "image_url": "/static/weapon_images/default.png",
                     "remaining_count": 0,
                     "reset_needed": True # カウントだけでもリセットが必要であることを伝える
@@ -85,7 +85,7 @@ def get_random_weapon():
             else:
                 # 実際の抽選リクエストで残りがない場合
                 return jsonify({
-                    "weapon_name": "全部引いたからリセットして再抽選！",
+                    "weapon_name": "もうブキ残ってないよ！",
                     "image_url": "/static/weapon_images/default.png", # リセット時の画像はdefault.png
                     "remaining_count": 0,
                     "reset_needed": True # フロントエンドにリセットが必要であることを伝えるフラグ
