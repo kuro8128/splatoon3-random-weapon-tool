@@ -262,7 +262,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.reset_needed) {
                     usedWeapons.clear(); // サーバーからリセット指示があった場合
                     // 自動再抽選ではなく、OKボタン押下で再抽選開始する
-                    showMessage("おや、全部引いたみたいだね！リセットして再抽選だ！", () => {
+                    showMessage("おや、全部引いたみたいだね！\nリセットして再抽選だ！", () => {
                         // OKボタン押下時のコールバック
                         startNewDrawCycle(); // 再抽選を開始
                     });
