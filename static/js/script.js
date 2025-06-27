@@ -88,16 +88,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // メッセージモーダルの表示
-    function showMessage(message) {
+    // okCallback: OKボタンが押されたときに実行する関数 (オプション)
+    function showMessage(message, okCallback = null) {
         messageText.textContent = message;
         messageModal.style.display = 'flex'; // flexにして中央寄せを維持
+
+        // 既存のイベントリスナーを削除 (二重登録防止)
+        closeModalButton.removeEventListener('click', closeModalButton.currentHandler);
+        
+        // 新しいイベントリスナーを設定
+        const newHandler = () => {
+            messageModal.style.display = 'none';
+            if (okCallback) {
+                okCallback(); // コールバックがあれば実行
+            }
+        };
+        closeModalButton.addEventListener('click', newHandler);
+        closeModalButton.currentHandler = newHandler; // 後で削除するためにハンドラを保存
     }
 
-    // メッセージモーダルの非表示
-    closeModalButton.addEventListener('click', () => {
-        messageModal.style.display = 'none';
-    });
-    // モーダル外クリックで閉じる
+    // モーダル外クリックで閉じる (再抽選はトリガーしない)
     window.addEventListener('click', (event) => {
         if (event.target === messageModal) {
             messageModal.style.display = 'none';
@@ -187,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // 残りブキ数の表示を更新
             if (data.remaining_count === 0) {
                 if (data.reset_needed) { // 「全部引いたからリセット」の場合
-                    remainingCountLabel.textContent = `残りブキ数: 0 (リセットが必要)`;
+                    remainingCountLabel.textContent = `残りブキ数: 0 (次回抽選時リセット)`;
                 } else { // 「そんなブキないよ」の場合
                     remainingCountLabel.textContent = `条件に合うブキ数: 0`;
                 }
@@ -251,11 +261,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (data.reset_needed) {
                     usedWeapons.clear(); // サーバーからリセット指示があった場合
-                    showMessage("おや、全部引いたみたいだね！リセットして再抽選だ！");
-                    // メッセージ表示後、自動的に再抽選をトリガー
-                    setTimeout(() => {
-                        startNewDrawCycle(); // 自動的に再抽選を開始
-                    }, 1500); // 1.5秒後に再抽選を試みる
+                    // 自動再抽選ではなく、OKボタン押下で再抽選開始する
+                    showMessage("おや、全部引いたみたいだね！リセットして再抽選だ！", () => {
+                        // OKボタン押下時のコールバック
+                        startNewDrawCycle(); // 再抽選を開始
+                    });
                 } else {
                     enableControls(); // 通常はここで有効化
                 }
